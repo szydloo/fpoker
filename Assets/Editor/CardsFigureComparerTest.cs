@@ -96,7 +96,17 @@ public class CardsFigureComparerTest
         var val = _cardsFigureComparer.Compare(firstCardsFigure, secCardsFigure);
 
         Assert.Less(val, 0);
+    }
 
+    [Test]
+    public void T07_comparing_TPA2_with_TPA3_should_mark_TPA3_higher()
+    {
+        firstCardsFigure = new CardsFigure(new Card(Symbol.Clubs, Value.Two), new Card(Symbol.Spades, Value.Two), new Card(Symbol.Hearts, Value.Ace), new Card(Symbol.Clubs, Value.Ace));
+        secCardsFigure = new CardsFigure(new Card(Symbol.Clubs, Value.Three), new Card(Symbol.Spades, Value.Three), new Card(Symbol.Hearts, Value.Ace), new Card(Symbol.Clubs, Value.Ace));
+
+        var val = _cardsFigureComparer.Compare(firstCardsFigure, secCardsFigure);
+
+        Assert.Less(val, 0);
     }
 
 }

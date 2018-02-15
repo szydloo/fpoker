@@ -20,14 +20,11 @@ namespace FunnyPoker.src.Controller
         private GameObject _gameObjTextBid;
         private Game _game;
         private CardsFigureComparer _comparer;
-        private PlayersUIManager _playersUIManager;
-        private int _numOfPlayers;
 
         private void Start()
         {
             var c = FindObjectOfType<Canvas>();
             _game = FindObjectOfType<Game>();
-            _numOfPlayers = PlayerPrefsManager.GetNumberOfPlayers();
             _panel = Instantiate(Resources.Load("Prefabs\\BidInput")) as GameObject;
             _panel.transform.SetParent(c.transform, false);
             _inputBid = GameObject.Find("inputBid").GetComponent<InputField>();
@@ -35,7 +32,6 @@ namespace FunnyPoker.src.Controller
             _gameObjectTextInvalid = GameObject.Find("txtInvalid");
             _gameObjectTextInvalid.SetActive(false);
             _gameObjTextBid = GameObject.Find("txtBid");
-            _playersUIManager = FindObjectOfType<PlayersUIManager>();
             _panel.SetActive(false);
             _btnBid.onClick.AddListener(() => _isButtonClicked = true);
         }
@@ -84,7 +80,7 @@ namespace FunnyPoker.src.Controller
         }
 
         /// <summary>
-        /// Checks validity of input first by proper data format (input contains '-') except "RAMPAMPAMPARADAM".
+        /// Checks validity of input first by proper data format (input contains '-') except "RAMPAMPAMPARADAM" easteregg.
         /// Then checks if input string can be turned into proper Cards figure. If so sets games current bid and previous
         /// bid to proper values and increments current player variable.
         /// </summary>

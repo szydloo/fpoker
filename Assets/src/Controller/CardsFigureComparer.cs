@@ -17,7 +17,7 @@ namespace FunnyPoker.src.Controller
             if(leftType != rightType)
             {
                 return leftType - rightType;
-            }
+            } // Since highcard/pair/threeofakind/fourofakind all have same cards it doesn't matter which one
             else if(leftType == HandType.HighCard)
             {
                 return left._cards.First().Value - right._cards.First().Value;
@@ -38,13 +38,13 @@ namespace FunnyPoker.src.Controller
             {
                 return 0;
             }
-            else if (leftType == HandType.Straight)
+            else if (leftType == HandType.Straight) // Determined by lowest card in a straight
             {
                 // check if only left lowest is ace
                 if(left.LowestCardStraight.Value == Value.Ace && right.LowestCardStraight.Value != Value.Ace)
                 {
                     return -1;
-                } // check if pnly right lowest is ace
+                } // check if only right lowest is ace
                 else if (right.LowestCardStraight.Value == Value.Ace && left.LowestCardStraight.Value != Value.Ace)
                 {
                     return 1;
@@ -54,19 +54,21 @@ namespace FunnyPoker.src.Controller
                     return left.LowestCardStraight.Value - right.LowestCardStraight.Value;
                 }
             }
-            else if(leftType == HandType.StraightFlush)
+            else if(leftType == HandType.StraightFlush) 
             {
                 return left.LowestCardStraight.Value - right.LowestCardStraight.Value;
             }
-            else if(leftType == HandType.FullHouse)
+            else if(leftType == HandType.FullHouse) 
             {
                 // left cards
+                // group lefts cards by value (should be 2)
                 var leftCardVals = left._cards.GroupBy(x => x.Value).Select(g => g.First()).ToList();
                 if(leftCardVals.Count() != 2)
                 {
                     throw new Exception("Cannot be more than two different types.");
 
                 }
+                // determine the value of a card of count 3 in a list
                 var leftThreeCardsVal = left._cards.Count(x => x.Value == leftCardVals[0].Value) == 3 ? leftCardVals[0].Value : leftCardVals[1].Value;
                 var leftTwoCardsVal = Value.Invalid;
                 if(leftThreeCardsVal == leftCardVals[0].Value)
@@ -77,11 +79,11 @@ namespace FunnyPoker.src.Controller
                 {
                     leftTwoCardsVal = leftCardVals[0].Value;
                 }
-                // right cards
+                // right cards same as left
                 var rightCardVals = right._cards.GroupBy(x => x.Value).Select(g => g.First()).ToList();
                 if (rightCardVals.Count() != 2)
                 {
-                    throw new Exception("Sth went wrong.");
+                    throw new Exception("Cannot be more than two different types.");
                 }
                 var rightThreeCardsVal = right._cards.Count(x => x.Value == rightCardVals[0].Value) == 3 ? rightCardVals[0].Value : rightCardVals[1].Value;
                 var rightTwoCards = Value.Invalid;
@@ -93,12 +95,12 @@ namespace FunnyPoker.src.Controller
                 {
                     rightTwoCards = rightCardVals[0].Value;
                 }
-
+                // First check which value of cards of 3 in a right/left set is higher
                 if(rightThreeCardsVal != leftThreeCardsVal)
                 {
                     return leftThreeCardsVal - rightThreeCardsVal;
                 }
-                else
+                else // if 3s are equal check value of 2 in a right/left set
                 {
                     return leftTwoCardsVal - leftTwoCardsVal;
                 }
@@ -125,7 +127,7 @@ namespace FunnyPoker.src.Controller
                 }
 
                 //Right
-                var rightPairsVal = left._cards.GroupBy(x => x.Value).Select(g => g.First()).ToList();
+                var rightPairsVal = right._cards.GroupBy(x => x.Value).Select(g => g.First()).ToList();
                 if (rightPairsVal.Count != 2)
                 {
                     throw new Exception("Cannot be more than two different types.");
