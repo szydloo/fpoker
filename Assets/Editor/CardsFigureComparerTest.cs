@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-using FunnyPoker.src.Controller;
+using FunnyPoker.Scripts.Controller;
 using FunnyPoker.Models;
 using System.Collections.Generic;
 

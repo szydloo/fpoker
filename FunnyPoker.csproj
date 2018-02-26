@@ -303,21 +303,28 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\src\Controller\CardDealer.cs" />
-    <Compile Include="Assets\src\Controller\CardsFigureComparer.cs" />
-    <Compile Include="Assets\src\Controller\CheckManager.cs" />
-    <Compile Include="Assets\src\Controller\Extensions\StringExtensions.cs" />
-    <Compile Include="Assets\src\Controller\Game.cs" />
-    <Compile Include="Assets\src\Controller\InputManager.cs" />
-    <Compile Include="Assets\src\Controller\LevelManager.cs" />
-    <Compile Include="Assets\src\Controller\OptionsController.cs" />
-    <Compile Include="Assets\src\Controller\PlayerPrefsManager.cs" />
-    <Compile Include="Assets\src\Controller\PlayersCreator.cs" />
-    <Compile Include="Assets\src\Controller\PlayersUIManager.cs" />
-    <Compile Include="Assets\src\Models\Card.cs" />
-    <Compile Include="Assets\src\Models\CardsFigure.cs" />
-    <Compile Include="Assets\src\Models\Deck.cs" />
-    <Compile Include="Assets\src\Models\Player.cs" />
+    <Compile Include="Assets\Scripts\Controller\CardDealer.cs" />
+    <Compile Include="Assets\Scripts\Controller\CardsFigureComparer.cs" />
+    <Compile Include="Assets\Scripts\Controller\CheckManager.cs" />
+    <Compile Include="Assets\Scripts\Controller\Extensions\StringExtensions.cs" />
+    <Compile Include="Assets\Scripts\Controller\Game.cs" />
+    <Compile Include="Assets\Scripts\Controller\InputManager.cs" />
+    <Compile Include="Assets\Scripts\Controller\LevelManager.cs" />
+    <Compile Include="Assets\Scripts\Controller\Networking\Client.cs" />
+    <Compile Include="Assets\Scripts\Controller\Networking\LobbyManager.cs" />
+    <Compile Include="Assets\Scripts\Controller\Networking\Server.cs" />
+    <Compile Include="Assets\Scripts\Controller\OptionsController.cs" />
+    <Compile Include="Assets\Scripts\Controller\PlayerPrefsManager.cs" />
+    <Compile Include="Assets\Scripts\Controller\PlayersCreator.cs" />
+    <Compile Include="Assets\Scripts\Controller\PlayerSetter.cs" />
+    <Compile Include="Assets\Scripts\Controller\PlayersUIManager.cs" />
+    <Compile Include="Assets\Scripts\Models\Card.cs" />
+    <Compile Include="Assets\Scripts\Models\CardsFigure.cs" />
+    <Compile Include="Assets\Scripts\Models\Deck.cs" />
+    <Compile Include="Assets\Scripts\Models\Player.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Fonts\OpenSans\License!.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
