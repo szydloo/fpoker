@@ -9,7 +9,6 @@ namespace FunnyPoker.Scripts.Networking
 
     public class LobbyManager : MonoBehaviour
     {
-
         public GameObject MainMenu;
         public GameObject ConnectMenu;
         public GameObject HostMenu;
@@ -22,6 +21,7 @@ namespace FunnyPoker.Scripts.Networking
         public InputField NameInputCon;
         public InputField AddressInput;
         public InputField PortInput;
+        public Button btnHostStart;
 
         public void ConnectMenuButton()
         {
@@ -68,7 +68,21 @@ namespace FunnyPoker.Scripts.Networking
             {
                 Debug.Log("Error in hosting game : " + e.Message); 
             }
+        }
 
+        public void ActivateHostStartBtn()
+        {
+            btnHostStart.onClick.AddListener(HostStartButton);
+
+            ColorBlock cb = btnHostStart.colors;
+            cb.normalColor = Color.green;
+            btnHostStart.colors = cb;
+
+        }
+
+        public void HostStartButton()
+        {
+            
         }
 
         public void ConnectToServerButton()
@@ -81,10 +95,17 @@ namespace FunnyPoker.Scripts.Networking
 
             if (portAddress == "")
                 portAddress = "5500";
-            
+
             try
             {
                 Client c = Instantiate(ClientPrefab).GetComponent<Client>();
+
+                c.ClientName = NameInputHost.text;
+                c.IsHost = false;
+                if (c.ClientName == "")
+                {
+                    c.ClientName = "Guest";
+                }
 
                 c.ConnectToServer(hostAddress, Int32.Parse(portAddress));
                 ConnectMenu.SetActive(false);
@@ -113,6 +134,7 @@ namespace FunnyPoker.Scripts.Networking
             ConnectMenu.SetActive(false);
             HostMenu.SetActive(false);
             Waiting.SetActive(false);
+            btnHostStart.gameObject.SetActive(c.IsHost ? true : false);
 
         }
 

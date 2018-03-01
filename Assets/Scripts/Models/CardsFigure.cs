@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace FunnyPoker.Models
@@ -13,6 +14,7 @@ namespace FunnyPoker.Models
         ,FullHouse, FourOfAKind, StraightFlush
     }
 
+    [Serializable]
     public class CardsFigure
     {
         public IList<Card> _cards = new List<Card>();
@@ -196,7 +198,6 @@ namespace FunnyPoker.Models
             }
         }
 
-
         // Look for 4 cards starting from the lowest value 
         private bool AreFiveOfSameKind(IList<Card> cards, Value startingVal)
         {
@@ -219,6 +220,12 @@ namespace FunnyPoker.Models
             }
 
             return true;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder strBuild = new StringBuilder();
+            return null;
         }
     }
 }

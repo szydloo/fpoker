@@ -75,7 +75,7 @@ namespace FunnyPoker.Scripts.Controller
             {
                 isButtonClicked = false;
                 panel.SetActive(false);
-                _game.isCallBidExecuted = true;
+                _game.IsCallBidExecuted = true;
             }
         }
 

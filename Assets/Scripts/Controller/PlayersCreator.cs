@@ -41,7 +41,7 @@ namespace FunnyPoker.Scripts.Controller
             if(_arePlayersInit)
             {
                 ClosePanel();
-                _cardDealer.DealFirstCard(_players);
+                //_cardDealer.DealFirstCard(_players);
                 // Activate indicator for first player
                 _playersUIManager.ActivateIndicatorForPlayer(_players, 0);
                 Destroy(gameObject);
@@ -56,10 +56,8 @@ namespace FunnyPoker.Scripts.Controller
                 ClearInputFields();
 
                 var parent = GameObject.Find(NAME_OF_PLAYER_POS_PARENT + _nameCount).transform;
-                var player = Instantiate(_playerPrefab, parent).GetComponent<Player>();
+                var player = Instantiate(_playerPrefab,parent).GetComponent<Player>();
 
-                player.SetName(_name);
-                player.SetUsername(_username);
 
                 _players.Add(player.gameObject);
 

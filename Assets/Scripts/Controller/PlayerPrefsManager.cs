@@ -10,6 +10,7 @@ namespace FunnyPoker.Scripts.Controller
     {
         private const string LOSE_CONDITION_KEY = "lose_condition";
         private const string NUMBER_OF_PLAYERS_KEY = "number_of_players";
+        private const string NUMBER_OF_STARTING_CARDS = "number_of_starting_cards";
 
         public static void SetLoseCondition(int numOfCards)
         {
@@ -43,6 +44,23 @@ namespace FunnyPoker.Scripts.Controller
         public static int GetNumberOfPlayers()
         {
             return PlayerPrefs.GetInt(NUMBER_OF_PLAYERS_KEY);
+        }
+
+        public static void SetNumberOfStartingCards(int numOfStartingCards)
+        {
+            if (numOfStartingCards >= 1 && numOfStartingCards <= 4 && numOfStartingCards < GetLoseCondition())
+            {
+                PlayerPrefs.SetInt(NUMBER_OF_STARTING_CARDS, numOfStartingCards);
+            }
+            else
+            {
+                Debug.Log("Invalid num of starting cards");
+            }
+        }
+
+        public static int GetNumberOfStartingCards()
+        {
+            return PlayerPrefs.GetInt(NUMBER_OF_STARTING_CARDS);
         }
     }
 }

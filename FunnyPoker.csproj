@@ -311,12 +311,12 @@
     <Compile Include="Assets\Scripts\Controller\InputManager.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelManager.cs" />
     <Compile Include="Assets\Scripts\Controller\Networking\Client.cs" />
+    <Compile Include="Assets\Scripts\Controller\Networking\GameNetworkManager.cs" />
     <Compile Include="Assets\Scripts\Controller\Networking\LobbyManager.cs" />
     <Compile Include="Assets\Scripts\Controller\Networking\Server.cs" />
     <Compile Include="Assets\Scripts\Controller\OptionsController.cs" />
     <Compile Include="Assets\Scripts\Controller\PlayerPrefsManager.cs" />
     <Compile Include="Assets\Scripts\Controller\PlayersCreator.cs" />
-    <Compile Include="Assets\Scripts\Controller\PlayerSetter.cs" />
     <Compile Include="Assets\Scripts\Controller\PlayersUIManager.cs" />
     <Compile Include="Assets\Scripts\Models\Card.cs" />
     <Compile Include="Assets\Scripts\Models\CardsFigure.cs" />

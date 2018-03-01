@@ -24,14 +24,6 @@ namespace FunnyPoker.Scripts.Controller
             //}
         }
 
-        public void UpdatePlayersUI(List<GameObject> players)
-        {
-            int i = 0;
-            foreach(var p in players)
-            {
-                txtPlayerNames[i].text = p.GetComponent<Player>().Name;
-            }
-        }
         
 
         // 

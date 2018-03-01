@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using System.Text;
 using FunnyPoker.Scripts.Networking;
+using UnityEngine.UI;
 
 namespace FunnyPoker.Scripts.Controller
 {
@@ -20,24 +21,26 @@ namespace FunnyPoker.Scripts.Controller
             }
         }
 
-        private List<GameObject> _players = new List<GameObject>();
-
-        public PlayersCreator playersCreator;
-        public CardDealer cardDealer;
-        public InputManager inputManager;
-        public CheckManager checkManager;
-        public PlayersUIManager playersUIManager;
+        public PlayersCreator PlayersCreator;
+        public CardDealer CardDealer;
+        public InputManager InputManager;
+        public CheckManager CheckManager;
+        public PlayersUIManager PlayersUIManager;
+        public Text DebugID;
+        public GameObject PlayerPrefab;
 
         private Client client;
         private StringBuilder bid;
+        private List<Player> _playersGraphRepresentation;
 
-        public bool isCallBidExecuted { get; set; }
-        public int startingNumOfPlayers { get; private set; }
-        public int NumOfCardsToLose { get; private set; }
-        public int CurrentPlayer { get; set; }
+        // Variables to sync accros players
+        public int NumOfCardsToLose { get; set; }
+        public int CurrentPlayerId { get; set; }
+        public int NumOfPlayers { get; set; }
+        public int NumOfStartingCards { get; set; }
         public CardsFigure CurrentBid { get; set; }
         public CardsFigure PreviousBid { get; set; }
-        
+        public bool IsCallBidExecuted { get; set; }
 
         void Awake()
         {
@@ -45,158 +48,235 @@ namespace FunnyPoker.Scripts.Controller
             bid = new StringBuilder();
             PreviousBid = new CardsFigure();
             CurrentBid = new CardsFigure();
+            _playersGraphRepresentation = new List<Player>();
+            CurrentPlayerId = 1;
             client = FindObjectOfType<Client>();
-            
-            //playersCreator = FindObjectOfType<PlayersCreator>();
-            //cardDealer = FindObjectOfType<CardDealer>();
-            //inputManager = FindObjectOfType<InputManager>();
-            //checkManager = FindObjectOfType<CheckManager>();
-            //playersUIManager = FindObjectOfType<PlayersUIManager>();
 
-            startingNumOfPlayers = PlayerPrefsManager.GetNumberOfPlayers();
-            NumOfCardsToLose = PlayerPrefsManager.GetLoseCondition();
-
-            // Single player
-            //playersCreator.CreatePlayers(_players); 
-            CurrentPlayer = 1;
-
-            // Multi Player
-            // Based on connected players
-            // GetTheir names
         }
 
-        private void Update()
+        private void Start()
         {
-            if (_players.Count > 0)
+            DebugID.text = client.Id.ToString();
+            if (client.IsHost)
             {
-                var player = _players[CurrentPlayer - 1];
-                if (player.GetComponent<Player>().Status == PlayerStatus.Defeated)
-                {
-                    playersUIManager.DeactivateIndicatorForPlayer(_players, CurrentPlayer - 1);
-                    player.SetActive(false);
-                    IncrementCurrentPlayer();
-                    playersUIManager.ActivateIndicatorForPlayer(_players, CurrentPlayer - 1);
-
-                }
+                client.Send("CSGM"); // Clients notification to server about started game and 
             }
         }
 
-
-        private void IncrementCurrentPlayer()
+        public void Update()
         {
-            if(CurrentPlayer == startingNumOfPlayers)
+
+            Debug.Log(NumOfPlayers);
+
+        }
+
+        public void SetPlayers()
+        {
+            for (int i = 1; i <= NumOfPlayers; i++)
             {
-                CurrentPlayer = 1;
+                var pos = GameObject.Find("PlayerPos" + i);
+                if (pos.transform.childCount != 0) continue;
+
+                if (client.Id == i)
+                {
+                    client.player = Instantiate(PlayerPrefab);
+                    client.player.GetComponent<Player>().Id = i;
+
+                    client.player.transform.SetParent(pos.transform, false);
+                    _playersGraphRepresentation.Add(client.player.GetComponent<Player>()); // So we can access other players via indexer Curr
+                    
+                }
+                else
+                {
+                    if (pos.transform.childCount == 0)
+                    {
+                        GameObject player = Instantiate(PlayerPrefab);
+                        player.transform.SetParent(pos.transform, false);
+                        _playersGraphRepresentation.Add(player.GetComponent<Player>());
+                    }
+                }
+            }
+            foreach(var p in _playersGraphRepresentation)
+            {
+                p.NumOfCards = NumOfStartingCards; 
+            }
+            EndTurn();
+        }
+
+
+        private void EndTurn()
+        {
+             client.Send("CENDTURN|" + client.player.GetComponent<Player>().NumOfCards + "|" + client.Id); // Sending msg about endturn with num of current cards and id of client
+            // On inc message client will recievie card
+        }
+
+        public void AddCardPicforPlayer(int id, int numOfCards)
+        {
+            var player = _playersGraphRepresentation[id - 1].gameObject;
+            if(id == client.Id)
+            {
+                CardDealer.DealProperNumberOfCards(player, numOfCards);
             }
             else
             {
-                CurrentPlayer++;
+                CardDealer.DealProperNumberOfReversedCards(player, numOfCards);
             }
         }
 
-        public void OnCalledBid()
+        private void OnCalledBid()
         {
-            // Coroutinessss...... 
-            StartCoroutine(ExecuteCallBidCoroutine());
-        }
-
-        private IEnumerator ExecuteCallBidCoroutine()
-        {
-            StartCoroutine(inputManager.OpenInputWindowAndProcessInputData(bid));
-            do
-            {
-                yield return null;
-            } while (!isCallBidExecuted);
-            playersUIManager.DeactivateIndicatorForPlayer(_players, CurrentPlayer - 1);
-            IncrementCurrentPlayer();
-            playersUIManager.ActivateIndicatorForPlayer(_players, CurrentPlayer - 1);
-
-            isCallBidExecuted = false;
+            if (!IsValidPlayersTurn()) return;
+            // validation handled on server level
         }
 
         public void OnCalledCheck()
         {
+            if (!IsValidPlayersTurn()) return;
 
-            //Check if currentBid okey
-            if(CurrentBid.Type == HandType.Invalid)
-            {
-                return;
-            }
-            // reveal all cards
-            var allGameCards = GetCardsFromEveryPlayer();
-
-            // if in all cards currentBid exists
-            if (checkManager.DoesCurrentBidExistsInAllCards(allGameCards, CurrentBid))
-            {
-                var player = _players[CurrentPlayer - 1].GetComponent<Player>();
-                player.NumOfCards++;
-
-                // Check if num of players num of cards exceeds cards to lose
-                if(player.NumOfCards >= NumOfCardsToLose)
-                {
-                    player.NumOfCards = 0;
-                    player.Status = PlayerStatus.Defeated;
-                }
-            }
-            else 
-            {
-                playersUIManager.DeactivateIndicatorForPlayer(_players, CurrentPlayer - 1);
-
-                DecrementCurrentPlayer();
-
-                while (_players[CurrentPlayer - 1].GetComponent<Player>().Status == PlayerStatus.Defeated)
-                {
-                    playersUIManager.DeactivateIndicatorForPlayer(_players, CurrentPlayer - 1);
-                    DecrementCurrentPlayer();
-                }
-
-                var player = _players[CurrentPlayer - 1].GetComponent<Player>();
-                player.NumOfCards++;
-
-                playersUIManager.ActivateIndicatorForPlayer(_players, CurrentPlayer-1);
-
-                // Check if num of players num of cards exceeds cards to lose
-                if (player.NumOfCards >= NumOfCardsToLose)
-                {
-                    player.NumOfCards = 0;
-                    player.Status = PlayerStatus.Defeated;
-                }
-            }
-
-            // deal new cards
-            cardDealer.DealProperNumOfCardsForAllPlayers();
-            // reset currbid and previous bid
-            CurrentBid = new CardsFigure();
-            PreviousBid = new CardsFigure();
         }
 
-        private void DecrementCurrentPlayer()
+        private bool IsValidPlayersTurn()
         {
-            if(CurrentPlayer == 1)
+            if (client.Id != CurrentPlayerId)
             {
-                CurrentPlayer = startingNumOfPlayers;
+                Debug.Log("It's players " + CurrentPlayerId + " turn, not player " + client.Id);
+                return false;
             }
-            else
-            {
-                CurrentPlayer--;
-            }
+            return true;
         }
 
-        private List<Card> GetCardsFromEveryPlayer()
-        {
-            List<Card> allGameCards = new List<Card>();
-            foreach (var pObj in _players)
-            {
-                var p = pObj.GetComponent<Player>();
-                if (p.Status == PlayerStatus.Defeated) continue;
-                foreach (var c in p.CurrentCards)
-                {
-                    allGameCards.Add(c);
-                }
-            }
-            return allGameCards;
-        }
+        #region singleplayercodePrerework
+        //private void Update()
+        //{
+        //    if (_players.Count > 0)
+        //    {
+        //        var player = _players[CurrentPlayer - 1];
+        //        if (player.GetComponent<Player>().Status == PlayerStatus.Defeated)
+        //        {
+        //            playersUIManager.DeactivateIndicatorForPlayer(_players, CurrentPlayer - 1);
+        //            player.SetActive(false);
+        //            IncrementCurrentPlayer();
+        //            playersUIManager.ActivateIndicatorForPlayer(_players, CurrentPlayer - 1);
 
-   
+        //        }
+        //    }
+        //}
+
+
+        //private void IncrementCurrentPlayer()
+        //{
+        //    if(CurrentPlayer == startingNumOfPlayers)
+        //    {
+        //        CurrentPlayer = 1;
+        //    }
+        //    else
+        //    {
+        //        CurrentPlayer++;
+        //    }
+        //}
+
+        //public void OnCalledBid()
+        //{
+        //    // Coroutinessss...... 
+        //    StartCoroutine(ExecuteCallBidCoroutine());
+        //}
+
+        //private IEnumerator ExecuteCallBidCoroutine()
+        //{
+        //    StartCoroutine(inputManager.OpenInputWindowAndProcessInputData(bid));
+        //    do
+        //    {
+        //        yield return null;
+        //    } while (!isCallBidExecuted);
+        //    playersUIManager.DeactivateIndicatorForPlayer(_players, CurrentPlayer - 1);
+        //    IncrementCurrentPlayer();
+        //    playersUIManager.ActivateIndicatorForPlayer(_players, CurrentPlayer - 1);
+
+        //    isCallBidExecuted = false;
+        //}
+
+        //public void OnCalledCheck()
+        //{
+
+        //    //Check if currentBid okey
+        //    if(CurrentBid.Type == HandType.Invalid)
+        //    {
+        //        return;
+        //    }
+        //    // reveal all cards
+        //    var allGameCards = GetCardsFromEveryPlayer();
+
+        //    // if in all cards currentBid exists
+        //    if (checkManager.DoesCurrentBidExistsInAllCards(allGameCards, CurrentBid))
+        //    {
+        //        var player = _players[CurrentPlayer - 1].GetComponent<Player>();
+        //        player.NumOfCards++;
+
+        //        // Check if num of players num of cards exceeds cards to lose
+        //        if(player.NumOfCards >= NumOfCardsToLose)
+        //        {
+        //            player.NumOfCards = 0;
+        //            player.Status = PlayerStatus.Defeated;
+        //        }
+        //    }
+        //    else 
+        //    {
+        //        playersUIManager.DeactivateIndicatorForPlayer(_players, CurrentPlayer - 1);
+
+        //        DecrementCurrentPlayer();
+
+        //        while (_players[CurrentPlayer - 1].GetComponent<Player>().Status == PlayerStatus.Defeated)
+        //        {
+        //            playersUIManager.DeactivateIndicatorForPlayer(_players, CurrentPlayer - 1);
+        //            DecrementCurrentPlayer();
+        //        }
+
+        //        var player = _players[CurrentPlayer - 1].GetComponent<Player>();
+        //        player.NumOfCards++;
+
+        //        playersUIManager.ActivateIndicatorForPlayer(_players, CurrentPlayer-1);
+
+        //        // Check if num of players num of cards exceeds cards to lose
+        //        if (player.NumOfCards >= NumOfCardsToLose)
+        //        {
+        //            player.NumOfCards = 0;
+        //            player.Status = PlayerStatus.Defeated;
+        //        }
+        //    }
+
+        //    // deal new cards
+        //    cardDealer.DealProperNumOfCardsForAllPlayers();
+        //    // reset currbid and previous bid
+        //    CurrentBid = new CardsFigure();
+        //    PreviousBid = new CardsFigure();
+        //}
+
+        //private void DecrementCurrentPlayer()
+        //{
+        //    if(CurrentPlayer == 1)
+        //    {
+        //        CurrentPlayer = startingNumOfPlayers;
+        //    }
+        //    else
+        //    {
+        //        CurrentPlayer--;
+        //    }
+        //}
+
+        //private List<Card> GetCardsFromEveryPlayer()
+        //{
+        //    List<Card> allGameCards = new List<Card>();
+        //    foreach (var pObj in _players)
+        //    {
+        //        var p = pObj.GetComponent<Player>();
+        //        if (p.Status == PlayerStatus.Defeated) continue;
+        //        foreach (var c in p.CurrentCards)
+        //        {
+        //            allGameCards.Add(c);
+        //        }
+        //    }
+        //    return allGameCards;
+        //}
+        #endregion
     }
 }

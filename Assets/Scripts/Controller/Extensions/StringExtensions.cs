@@ -27,11 +27,74 @@ namespace FunnyPoker.Extensions
         public static Card ToCard(this string str)
         {
             Card c = new Card(Symbol.Clubs, Value.Invalid);
-            if (str.Length != 1)
+            if (str.Length == 2)
             {
-                return null;
+                var firstChar = str[0];
+                var secChar = str[1];
+                switch (firstChar)
+                {
+                    case '2':
+                        c.Value = Value.Two;
+                        break;
+                    case '3':
+                        c.Value = Value.Three;
+                        break;
+                    case '4':
+                        c.Value = Value.Four;
+                        break;
+                    case '5':
+                        c.Value = Value.Five;
+                        break;
+                    case '6':
+                        c.Value = Value.Six;
+                        break;
+                    case '7':
+                        c.Value = Value.Seven;
+                        break;
+                    case '8':
+                        c.Value = Value.Eight;
+                        break;
+                    case '9':
+                        c.Value = Value.Nine;
+                        break;
+                    case 'X':
+                        c.Value = Value.Ten;
+                        break;
+                    case 'J':
+                        c.Value = Value.Jack;
+                        break;
+                    case 'Q':
+                        c.Value = Value.Queen;
+                        break;
+                    case 'K':
+                        c.Value = Value.King;
+                        break;
+                    case 'A':
+                        c.Value = Value.Ace;
+                        break;
+                    default:
+                        return null;
+                }
+                switch(secChar)
+                {
+                    case 'C':
+                        c.Symbol = Symbol.Clubs;
+                        break;
+                    case 'S':
+                        c.Symbol = Symbol.Spades;
+                        break;
+                    case 'H':
+                        c.Symbol = Symbol.Hearts;
+                        break;
+                    case 'D':
+                        c.Symbol = Symbol.Diamonds;
+                        break;
+                    default:
+                        return null;
+                }
+                return c;
             }
-            else
+            else if (str.Length == 1)
             {
                 var firstChar = str[0];
                 switch (firstChar)
@@ -80,6 +143,7 @@ namespace FunnyPoker.Extensions
                 }
                 return c;
             }
+            else return null;
 
         }
     }
