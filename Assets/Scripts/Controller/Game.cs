@@ -41,6 +41,7 @@ namespace FunnyPoker.Scripts.Controller
         public CardsFigure CurrentBid { get; set; }
         public CardsFigure PreviousBid { get; set; }
         public bool IsCallBidExecuted { get; set; }
+        public bool tempFlag { get; set; }
 
         void Awake()
         {
@@ -51,16 +52,14 @@ namespace FunnyPoker.Scripts.Controller
             _playersGraphRepresentation = new List<Player>();
             CurrentPlayerId = 1;
             client = FindObjectOfType<Client>();
+            tempFlag = true;
 
         }
 
         private void Start()
         {
             DebugID.text = client.Id.ToString();
-            if (client.IsHost)
-            {
-                client.Send("CSGM"); // Clients notification to server about started game and 
-            }
+            client.Send("CSGM"); // Clients notification to server about started game and 
         }
 
         public void Update()
@@ -100,7 +99,10 @@ namespace FunnyPoker.Scripts.Controller
             {
                 p.NumOfCards = NumOfStartingCards; 
             }
-            EndTurn();
+            if(tempFlag)
+            {
+                EndTurn();
+            }
         }
 
 
@@ -108,6 +110,7 @@ namespace FunnyPoker.Scripts.Controller
         {
              client.Send("CENDTURN|" + client.player.GetComponent<Player>().NumOfCards + "|" + client.Id); // Sending msg about endturn with num of current cards and id of client
             // On inc message client will recievie card
+            tempFlag = false;
         }
 
         public void AddCardPicforPlayer(int id, int numOfCards)

@@ -47,7 +47,7 @@ namespace FunnyPoker.Scripts.Networking
                 }
             }
         }
-
+        
         public void ConnectToServer(string host, int port)
         {
             if (socketReady)
