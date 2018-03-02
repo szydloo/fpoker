@@ -94,7 +94,7 @@ namespace FunnyPoker.Scripts.Networking
                         break;
                     }
                 case "SGIN": // Synchronization of init Game variables accross players
-                    {
+                    { // SGIN|NumOfCardsToLose|NumOfPlayers|NumOfStartingCards
                         Game.Instance.NumOfCardsToLose = int.Parse(msg[1]);
                         Game.Instance.NumOfPlayers = int.Parse(msg[2]);
                         Game.Instance.NumOfStartingCards = int.Parse(msg[3]);
@@ -102,24 +102,29 @@ namespace FunnyPoker.Scripts.Networking
                         break;
                     }
                 case "SENDTURNME": // End of turn signalization
-                    {
-                        int numOfCards = int.Parse(msg[1]);
+                    { // SENDTURNME|ID|
+                        int id = int.Parse(msg[1]);
+                        if (id != this.Id) break;
+                        int numOfCards = int.Parse(msg[2]);
                         int k = 0;
 
                         for (int i = 0; i < numOfCards; i++)
                         {
-                            string cardsInString = msg[2];
+                            string cardsInString = msg[3];
                             string card = cardsInString.Substring(k, 2);
                             player.GetComponent<Player>().CurrentCards.Add(card.ToCard());
                             k += 2;
                         }
                         Game.Instance.AddCardPicforPlayer(this.Id, numOfCards);
+
                         break;
                     }
                 case "SENDTURNOTHER":
                     {
+                        
                         int numOfCards = int.Parse(msg[1]);
                         int senderClId = int.Parse(msg[2]);
+                        if (senderClId == this.Id) break;
                         Game.Instance.AddCardPicforPlayer(senderClId, numOfCards);
                         break;
                     }

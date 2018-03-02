@@ -44,9 +44,9 @@ namespace FunnyPoker.Scripts.Networking
 
         private void OnDestroy()
         {
+            GameNetworkManager.Instance.ResetNetworkVariables();
             server.Stop();
         }
-
 
         private void OnApplicationQuit()
         {
@@ -89,7 +89,6 @@ namespace FunnyPoker.Scripts.Networking
                 _disconectedList.RemoveAt(i);
             }
         }
-
 
         private bool IsConnected(TcpClient c)
         {
@@ -146,17 +145,18 @@ namespace FunnyPoker.Scripts.Networking
             switch (msg[0])
             {
                 case "CWHO":
-                    {
+                    { 
                         c.ClientName = msg[1];
                         c.IsHost = (msg[2] == "0") ? false : true;
                         c.Id = GameNetworkManager.Instance.ClientId;
-                        GameNetworkManager.Instance.ClientId++; // Im afraid of this broadcast so that's why
-                        Broadcast("SGID|" + (GameNetworkManager.Instance.ClientId - 1).ToString(), _clients.Where(x => x.Id == GameNetworkManager.Instance.ClientId - 1).ToList());
+                        Broadcast("SGID|" + (GameNetworkManager.Instance.ClientId).ToString(), _clients.Where(x => x.Id == GameNetworkManager.Instance.ClientId).ToList());
+                        GameNetworkManager.Instance.ClientId++;
+
                         break;
                     }
-                case "CGID":
+                case "CGID": // Client's msg that he got id and is ready to 
                     {
-                        if (_clients.Count == PlayerPrefsManager.GetNumberOfPlayers())
+                        if (_clients.Count == PlayerPrefsManager.GetNumberOfPlayers()) 
                         {
                             Broadcast("SSGM", _clients);
                         }
@@ -174,7 +174,7 @@ namespace FunnyPoker.Scripts.Networking
                         break;
                     }
                 case "CENDTURN": // On end turn deal cards
-                    {
+                    { // CENTRUEN|ClientsNumCards|ClientsId
                         var clientsNumCards = int.Parse(msg[1]);
                         var clientsId = int.Parse(msg[2]);
                         StringBuilder strBuild = new StringBuilder();
@@ -185,8 +185,15 @@ namespace FunnyPoker.Scripts.Networking
                         }
 
                         // TODO Think of better ideas for msg names
-                        Broadcast("SENDTURNME|" + clientsNumCards + "|" + strBuild.ToString(), _clients.Find(x => x.Id == clientsId)); // Sending actual cards to client
-                        Broadcast("SENDTURNOTHER|" + clientsNumCards + "|" + clientsId, _clients.Where(x => x.Id != clientsId).ToList()); // Sending just num of cards the client has to others
+                        Broadcast("SENDTURNME|"+ clientsId + "|" + clientsNumCards + "|" + strBuild.ToString(), _clients.Where(x => x.Id == clientsId).ToList()); // Sending actual cards to client
+                        break;
+                    }
+                case "CENDTURNME":
+                    {
+                        var clientsNumCards = int.Parse(msg[1]);
+                        var clientsId = int.Parse(msg[2]);
+
+                        Broadcast("SENDTURNOTHER|" + clientsNumCards + "|" + clientsId, _clients.Where(x => x.Id != clientsId).ToList()); // Sending just num of cards, the client has, to others
                         break;
                     }
             }
@@ -198,7 +205,7 @@ namespace FunnyPoker.Scripts.Networking
             List<ServerClient> sc = new List<ServerClient> { c };
             Broadcast(data, sc);
         }
-
+        // Server write
         private void Broadcast(string data, List<ServerClient> clients)
         {
             foreach (var c in clients)

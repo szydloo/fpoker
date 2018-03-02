@@ -1,5 +1,6 @@
 ﻿using FunnyPoker.Models;
 using FunnyPoker.Scripts.Controller;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -59,6 +60,13 @@ namespace FunnyPoker.Scripts.Networking
             {
                 currentPlayerId++;
             }
+        }
+
+        public void ResetNetworkVariables()
+        {
+            currentPlayerId = 1;
+            deck = new Deck();
+            clientId = 1;
         }
 
         protected GameNetworkManager()

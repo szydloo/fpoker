@@ -153,6 +153,6 @@ bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.Audi
 c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
 9de3a22eca9aefadba2d10d5987cefe3 UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
-b5233d3064c6957bec3e09fb845a5f75 Assembly-CSharp.dll:FunnyPoker.Scripts.Controller.Game
+87edf8aa2d600cd2bd6486ae471f866c Assembly-CSharp.dll:FunnyPoker.Scripts.Controller.Game
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:FunnyPoker.Scripts.Controller.CheckManager
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:FunnyPoker.Scripts.Controller.OptionsController

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Text;
 using FunnyPoker.Scripts.Networking;
 using UnityEngine.UI;
+using System.Threading;
 
 namespace FunnyPoker.Scripts.Controller
 {
@@ -28,6 +29,7 @@ namespace FunnyPoker.Scripts.Controller
         public PlayersUIManager PlayersUIManager;
         public Text DebugID;
         public GameObject PlayerPrefab;
+        public GameObject readyPanel;
 
         private Client client;
         private StringBuilder bid;
@@ -59,14 +61,20 @@ namespace FunnyPoker.Scripts.Controller
         private void Start()
         {
             DebugID.text = client.Id.ToString();
+
+            Thread.Sleep(2000); // ?????????????????????????????????????
             client.Send("CSGM"); // Clients notification to server about started game and 
         }
 
         public void Update()
         {
-
             Debug.Log(NumOfPlayers);
+        }
 
+        public void OnClickedReady()
+        {
+            client.Send("CENDTURNME|" + client.player.GetComponent<Player>().NumOfCards + "|" + client.Id);
+            readyPanel.SetActive(false);
         }
 
         public void SetPlayers()
@@ -105,12 +113,12 @@ namespace FunnyPoker.Scripts.Controller
             }
         }
 
-
         private void EndTurn()
         {
              client.Send("CENDTURN|" + client.player.GetComponent<Player>().NumOfCards + "|" + client.Id); // Sending msg about endturn with num of current cards and id of client
             // On inc message client will recievie card
             tempFlag = false;
+                
         }
 
         public void AddCardPicforPlayer(int id, int numOfCards)
@@ -119,6 +127,7 @@ namespace FunnyPoker.Scripts.Controller
             if(id == client.Id)
             {
                 CardDealer.DealProperNumberOfCards(player, numOfCards);
+
             }
             else
             {
